@@ -8,17 +8,35 @@ import bcu.cmp5332.bookingsystem.model.FlightBookingSystem;
 
 import java.io.IOException;
 
+/**
+ * A command that creates a new Customer record in the system.
+ * It assigns an auto-generated ID based on <code>fbs.getAllCustomers().size() + 1</code>.
+ */
 public class AddCustomer implements Command {
     private final String name;
     private final String phone;
     private final String email;
 
+    /**
+     * Constructs an <code>AddCustomer</code> command with basic details.
+     *
+     * @param name  the customer's name
+     * @param phone the customer's phone number
+     * @param email the customer's email address
+     */
     public AddCustomer(String name, String phone, String email) {
         this.name = name;
         this.phone = phone;
         this.email = email;
     }
 
+    /**
+     * Executes the creation of the customer, then stores the updated system state.
+     * If storing fails, it rolls back.
+     *
+     * @param fbs the flight booking system
+     * @throws FlightBookingSystemException if storing fails or other logic errors occur
+     */
     @Override
     public void execute(FlightBookingSystem fbs) throws FlightBookingSystemException {
         // 1) Take a snapshot

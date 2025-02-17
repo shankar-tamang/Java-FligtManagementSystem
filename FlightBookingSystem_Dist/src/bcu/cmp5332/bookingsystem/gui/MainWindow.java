@@ -16,9 +16,8 @@ import java.util.List;
 
 /**
  * The main GUI window for the Flight Booking Management System.
- * Includes menu items for flights, bookings, customers, admin actions, and new features:
- * - Search Flights
- * - Admin Reports
+ * Provides menu-driven actions for flights, bookings, and customers,
+ * along with admin-level features like reports and system exit.
  */
 public class MainWindow extends JFrame implements ActionListener {
     private static final long serialVersionUID = 1L;
@@ -41,15 +40,28 @@ public class MainWindow extends JFrame implements ActionListener {
 
     private final FlightBookingSystem fbs;
 
+    /**
+     * Constructs the main GUI window, attaching to the given FlightBookingSystem.
+     *
+     * @param fbs the flight booking system
+     */
     public MainWindow(FlightBookingSystem fbs) {
         this.fbs = fbs;
         initialize();
     }
 
+    /**
+     * Returns the flight booking system used by this window.
+     *
+     * @return the FlightBookingSystem
+     */
     public FlightBookingSystem getFlightBookingSystem() {
         return fbs;
     }
 
+    /**
+     * Initializes the menu layout and items for Admin, Flights, Bookings, and Customers.
+     */
     private void initialize() {
         setTitle("Flight Booking Management System");
         menuBar = new JMenuBar();
@@ -132,6 +144,11 @@ public class MainWindow extends JFrame implements ActionListener {
         setVisible(true);
     }
 
+    /**
+     * Handles menu item actions such as viewing flights, adding flights, and so on.
+     *
+     * @param ae the action event triggered by menu interaction
+     */
     @Override
     public void actionPerformed(ActionEvent ae) {
         // Admin
@@ -226,12 +243,11 @@ public class MainWindow extends JFrame implements ActionListener {
     }
 
     /**
-     * Displays all non-deleted flights in a table.
+     * Displays all non-deleted flights in a table for quick viewing.
      */
     public void displayFlights() {
         List<Flight> flightsList = fbs.getFlights();
 
-        // For seat classes, we might just show the sum or show them individually
         String[] columns = {"ID", "Flight No", "Origin", "Destination",
             "Departure", "Econ", "Biz", "First", "BasePrice"};
         Object[][] data = new Object[flightsList.size()][9];

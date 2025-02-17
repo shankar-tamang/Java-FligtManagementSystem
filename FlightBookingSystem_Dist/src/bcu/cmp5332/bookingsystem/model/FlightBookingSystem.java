@@ -10,20 +10,30 @@ import java.util.stream.Collectors;
  */
 public class FlightBookingSystem implements Serializable {
     private static final long serialVersionUID = 1L;
-    
+
     // Maps to store customers and flights by unique ID.
     private final Map<Integer, Customer> customers = new HashMap<>();
     private final Map<Integer, Flight> flights = new HashMap<>();
     private LocalDate systemDate = LocalDate.now();
-    
+
+    /**
+     * Gets the current system-wide date. Used to determine upcoming flights.
+     *
+     * @return the current system date
+     */
     public LocalDate getSystemDate() {
         return systemDate;
     }
-    
+
+    /**
+     * Sets the system-wide date, which influences "upcoming flights" calculations.
+     *
+     * @param systemDate the new system date
+     */
     public void setSystemDate(LocalDate systemDate) {
         this.systemDate = systemDate;
     }
-    
+
     /**
      * Returns a list of all non-deleted customers.
      *
@@ -34,7 +44,7 @@ public class FlightBookingSystem implements Serializable {
                 .filter(c -> !c.isDeleted())
                 .collect(Collectors.toList());
     }
-    
+
     /**
      * Returns all customers, including soft-deleted ones.
      *
@@ -43,14 +53,14 @@ public class FlightBookingSystem implements Serializable {
     public List<Customer> getAllCustomers() {
         return new ArrayList<>(customers.values());
     }
-    
+
     public Customer getCustomerById(int id) {
         if (!customers.containsKey(id)) {
             throw new IllegalArgumentException("Customer ID " + id + " not found.");
         }
         return customers.get(id);
     }
-    
+
     /**
      * Adds a customer to the system.
      * The Customer constructor automatically assigns a unique ID.
@@ -64,7 +74,7 @@ public class FlightBookingSystem implements Serializable {
         }
         customers.put(customer.getId(), customer);
     }
-    
+
     /**
      * Returns a list of all non-deleted flights.
      *
@@ -75,7 +85,7 @@ public class FlightBookingSystem implements Serializable {
                 .filter(f -> !f.isDeleted())
                 .collect(Collectors.toList());
     }
-    
+
     /**
      * Returns all flights, including soft-deleted ones.
      *
@@ -84,14 +94,14 @@ public class FlightBookingSystem implements Serializable {
     public List<Flight> getAllFlights() {
         return new ArrayList<>(flights.values());
     }
-    
+
     public Flight getFlightById(int id) {
         if (!flights.containsKey(id)) {
             throw new IllegalArgumentException("Flight ID " + id + " not found.");
         }
         return flights.get(id);
     }
-    
+
     /**
      * Adds a flight to the system.
      * The Flight constructor automatically assigns a unique ID.
@@ -105,7 +115,7 @@ public class FlightBookingSystem implements Serializable {
         }
         flights.put(flight.getId(), flight);
     }
-    
+
     /**
      * Returns a list of upcoming flights (departure date after systemDate).
      *
@@ -117,7 +127,7 @@ public class FlightBookingSystem implements Serializable {
                 .filter(f -> f.getDepartureDate().isAfter(systemDate))
                 .collect(Collectors.toList());
     }
-    
+
     /**
      * Returns all bookings from all non-deleted customers.
      *
@@ -130,7 +140,7 @@ public class FlightBookingSystem implements Serializable {
         }
         return results;
     }
-    
+
     /**
      * Searches for a booking by its unique bookingId.
      *

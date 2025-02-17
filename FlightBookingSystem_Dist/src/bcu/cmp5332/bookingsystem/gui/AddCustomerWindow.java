@@ -11,22 +11,36 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
+/**
+ * A GUI window that allows a user to create a new Customer record by entering
+ * the customer's name, phone, and email. On submission, it executes the
+ * {@link AddCustomer} command and updates the system.
+ */
 public class AddCustomerWindow extends JFrame implements ActionListener {
     private static final long serialVersionUID = 1L;
 
+    // Text fields for customer details
     private JTextField nameText = new JTextField();
     private JTextField phoneText = new JTextField();
     private JTextField emailText = new JTextField();
     private JButton addBtn = new JButton("Add");
     private JButton cancelBtn = new JButton("Cancel");
-    private FlightBookingSystem fbs;
 
+    private final FlightBookingSystem fbs;
+
+    /**
+     * Constructs a new <code>AddCustomerWindow</code>, attaching it to the specified
+     * <code>FlightBookingSystem</code> for data operations.
+     *
+     * @param fbs the flight booking system in which to add customers
+     */
     public AddCustomerWindow(FlightBookingSystem fbs) {
         this.fbs = fbs;
         setTitle("Add Customer");
         setSize(300, 200);
         setLayout(new GridLayout(4, 2));
 
+        // Build the form
         add(new JLabel("Name:"));
         add(nameText);
         add(new JLabel("Phone:"));
@@ -36,6 +50,7 @@ public class AddCustomerWindow extends JFrame implements ActionListener {
         add(addBtn);
         add(cancelBtn);
 
+        // Set up listeners
         addBtn.addActionListener(this);
         cancelBtn.addActionListener(e -> setVisible(false));
 
@@ -43,6 +58,16 @@ public class AddCustomerWindow extends JFrame implements ActionListener {
         setVisible(true);
     }
 
+    /**
+     * Responds to button clicks:
+     * <ul>
+     *   <li><strong>Add</strong>: Reads field inputs, executes {@link AddCustomer} to create the customer,
+     *       attempts to auto-save, and closes the window if successful.</li>
+     *   <li><strong>Cancel</strong>: Simply closes this window.</li>
+     * </ul>
+     *
+     * @param e the action event triggered by the user's button click
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         try {

@@ -14,8 +14,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
 /**
- * A window that collects data for adding a new Flight with separate seat capacities
- * (economy, business, first) plus a base price.
+ * A window that collects data for adding a new Flight with multiple seat capacities
+ * (economy, business, first) plus a base price. After user input, it executes the
+ * {@link AddFlight} command to create the new flight.
  */
 public class AddFlightWindow extends JFrame implements ActionListener {
 
@@ -26,21 +27,27 @@ public class AddFlightWindow extends JFrame implements ActionListener {
     private JTextField originText = new JTextField();
     private JTextField destinationText = new JTextField();
     private JTextField depDateText = new JTextField();
-
     private JTextField econCapText = new JTextField();
     private JTextField bizCapText = new JTextField();
     private JTextField firstCapText = new JTextField();
-
     private JTextField basePriceText = new JTextField();
 
     private JButton addBtn = new JButton("Add");
     private JButton cancelBtn = new JButton("Cancel");
 
+    /**
+     * Creates a new AddFlightWindow, attached to the given MainWindow.
+     *
+     * @param mw the main window to which this window is related
+     */
     public AddFlightWindow(MainWindow mw) {
         this.mw = mw;
         initialize();
     }
 
+    /**
+     * Initializes the layout and components for adding a flight.
+     */
     private void initialize() {
         setTitle("Add a New Flight");
         setSize(400, 400);
@@ -91,6 +98,10 @@ public class AddFlightWindow extends JFrame implements ActionListener {
         }
     }
 
+    /**
+     * Reads user input fields, validates them, and invokes the {@link AddFlight} command
+     * to create a new flight. Also attempts to auto-save the system state.
+     */
     private void addFlight() {
         try {
             String flightNumber = flightNoText.getText().trim();
@@ -132,14 +143,14 @@ public class AddFlightWindow extends JFrame implements ActionListener {
                 throw new FlightBookingSystemException("Base price must be a valid number");
             }
 
-            // create and execute the AddFlight command with all 8 parameters
+            // Create and execute the AddFlight command with all 8 parameters
             Command addFlightCmd = new AddFlight(
                 flightNumber, origin, destination, departureDate,
                 econCap, bizCap, firstCap, basePrice
             );
             addFlightCmd.execute(mw.getFlightBookingSystem());
 
-            // attempt auto-save
+            // Attempt auto-save
             try {
                 FlightBookingSystemData.store(mw.getFlightBookingSystem());
             } catch (IOException ioe) {

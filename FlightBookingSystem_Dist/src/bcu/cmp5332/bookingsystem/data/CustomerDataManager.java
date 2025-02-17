@@ -7,16 +7,27 @@ import java.util.Scanner;
 
 /**
  * Manages loading and storing customer data to/from a text file.
+ * <p>
+ * The text file format is expected to include (id, name, phone, email, deleted),
+ * separated by "::". When loaded, the <code>Customer</code> objects are
+ * created and added to the <code>FlightBookingSystem</code>.
  */
 public class CustomerDataManager implements DataManager {
     private static final String FILE_NAME = "resources/data/customers.txt";
     private static final String SEPARATOR = "::";
 
+    /**
+     * Loads customer data from <code>customers.txt</code> and populates the
+     * given <code>FlightBookingSystem</code>.
+     *
+     * @param fbs the flight booking system to populate with customers
+     * @throws IOException if reading from the file fails
+     */
     @Override
     public void loadData(FlightBookingSystem fbs) throws IOException {
         File file = new File(FILE_NAME);
         if (!file.exists()) return;
-        
+
         try (Scanner scanner = new Scanner(new FileReader(file))) {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
@@ -27,12 +38,20 @@ public class CustomerDataManager implements DataManager {
                 String phone = data[2];
                 String email = data[3];
                 boolean deleted = Boolean.parseBoolean(data[4]);
+
                 Customer customer = new Customer(id, name, phone, email, deleted);
                 fbs.addCustomer(customer);
             }
         }
     }
 
+    /**
+     * Stores customer data into <code>customers.txt</code>, including
+     * whether each customer is soft-deleted.
+     *
+     * @param fbs the flight booking system from which to retrieve customer data
+     * @throws IOException if writing to the file fails
+     */
     @Override
     public void storeData(FlightBookingSystem fbs) throws IOException {
         try (PrintWriter writer = new PrintWriter(new FileWriter(FILE_NAME))) {

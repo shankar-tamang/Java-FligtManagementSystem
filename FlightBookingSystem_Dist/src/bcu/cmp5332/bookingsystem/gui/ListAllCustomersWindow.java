@@ -7,9 +7,18 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
+/**
+ * A window that displays a table of all non-deleted customers
+ * (ID, Name, Phone, Email, Booking count).
+ */
 public class ListAllCustomersWindow extends JFrame {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Constructs a new ListAllCustomersWindow, showing all active customers in a table.
+     *
+     * @param fbs the flight booking system
+     */
     public ListAllCustomersWindow(FlightBookingSystem fbs) {
         setTitle("List of All Customers");
         setSize(600, 400);
@@ -35,4 +44,3 @@ public class ListAllCustomersWindow extends JFrame {
         setVisible(true);
     }
 }
-	

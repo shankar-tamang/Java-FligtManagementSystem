@@ -8,7 +8,20 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+/**
+ * The entry point of the Flight Booking System console application.
+ * <p>
+ * This class loads the system data, starts a console loop for reading commands,
+ * and exits upon user request or error. The current state is saved upon exit.
+ */
 public class Main {
+
+    /**
+     * Main method for running the Flight Booking System in console mode.
+     * Loads data, reads commands from stdin, and saves upon exit.
+     *
+     * @param args command-line arguments (unused)
+     */
     public static void main(String[] args) {
         FlightBookingSystem fbs;
 

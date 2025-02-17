@@ -10,6 +10,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
+/**
+ * A GUI window that allows a user to cancel an existing booking by
+ * specifying the customer and flight IDs.
+ */
 public class CancelBookingWindow extends JFrame implements ActionListener {
     private static final long serialVersionUID = 1L;
     private final FlightBookingSystem fbs;
@@ -19,6 +23,11 @@ public class CancelBookingWindow extends JFrame implements ActionListener {
     private JButton cancelBtn = new JButton("Cancel Booking");
     private JButton closeBtn = new JButton("Close");
 
+    /**
+     * Constructs the window for canceling a booking.
+     *
+     * @param fbs the flight booking system instance
+     */
     public CancelBookingWindow(FlightBookingSystem fbs) {
         this.fbs = fbs;
         setTitle("Cancel Booking");

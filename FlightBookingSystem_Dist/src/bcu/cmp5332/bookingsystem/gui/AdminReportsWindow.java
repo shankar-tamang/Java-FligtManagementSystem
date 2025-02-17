@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * A simple report window that shows total flights, customers, bookings,
- * total revenue, and most booked flight.
+ * total revenue, and the most booked flight.
  */
 public class AdminReportsWindow extends JFrame {
     private static final long serialVersionUID = 1L;
@@ -19,6 +19,12 @@ public class AdminReportsWindow extends JFrame {
     private final FlightBookingSystem fbs;
     private JTextArea textArea = new JTextArea();
 
+    /**
+     * Constructs an AdminReportsWindow, which displays summary statistics about
+     * flights, customers, bookings, and revenue.
+     *
+     * @param fbs the flight booking system from which to gather data
+     */
     public AdminReportsWindow(FlightBookingSystem fbs) {
         this.fbs = fbs;
         setTitle("System Reports");
@@ -33,6 +39,11 @@ public class AdminReportsWindow extends JFrame {
         setVisible(true);
     }
 
+    /**
+     * Gathers data from the FlightBookingSystem and populates the text area
+     * with stats including total flights, customers, bookings, total revenue,
+     * and the most booked flight.
+     */
     private void generateReport() {
         List<Booking> allBookings = fbs.getAllBookings();
 

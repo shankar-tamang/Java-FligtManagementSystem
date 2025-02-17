@@ -6,14 +6,22 @@ import java.time.LocalDate;
 import java.util.Scanner;
 
 /**
- * Manages loading and storing booking data to/from a text file.
- * Extended to store seatType and foodOption as well.
+ * Manages loading and storing booking data to/from a text file,
+ * including seat type, food option, and any fees or dynamic pricing.
  */
 public class BookingDataManager implements DataManager {
 
     private static final String FILE_NAME = "resources/data/bookings.txt";
     private static final String SEPARATOR = "::";
 
+    /**
+     * Loads booking data from <code>bookings.txt</code>, including seat type,
+     * food option, booking price, and fees. Creates and links <code>Booking</code>
+     * objects to the appropriate <code>Customer</code> and <code>Flight</code>.
+     *
+     * @param fbs the flight booking system to populate with bookings
+     * @throws IOException if reading the file fails
+     */
     @Override
     public void loadData(FlightBookingSystem fbs) throws IOException {
         File file = new File(FILE_NAME);
@@ -38,20 +46,30 @@ public class BookingDataManager implements DataManager {
                 Flight flight = fbs.getFlightById(fltId);
 
                 Booking booking = new Booking(customer, flight, bookingDate);
-                // forcibly set the ID if you prefer or just rely on nextBookingId
-                // but usually we don't set bookingId manually unless you changed the code
+                // If needed, we could forcibly set bookingId, but typically the
+                // booking object auto-assigns a new ID. For advanced usage, you might
+                // store it if you want to ensure IDs match the file. 
+                //
                 booking.setSeatType(seatType);
                 booking.setFoodOption(foodOpt);
                 booking.setBookingPrice(bookingPrice);
                 booking.setFee(fee);
 
+                // Add to the customer’s list
                 customer.addBooking(booking);
-                // add passenger with seatType if needed
+                // Also add passenger to the flight, specifying seat type if your flight logic allows it
                 flight.addPassenger(customer, seatType);
             }
         }
     }
 
+    /**
+     * Stores booking data (including seat type, food option, booking price, and fee)
+     * to <code>bookings.txt</code> for each active customer.
+     *
+     * @param fbs the flight booking system to retrieve booking info from
+     * @throws IOException if writing the file fails
+     */
     @Override
     public void storeData(FlightBookingSystem fbs) throws IOException {
         try (PrintWriter writer = new PrintWriter(new FileWriter(FILE_NAME))) {

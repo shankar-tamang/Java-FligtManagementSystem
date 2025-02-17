@@ -13,6 +13,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
+/**
+ * A window that lets a user issue a new booking by specifying a customer ID,
+ * flight ID, seat class, and food option.
+ */
 public class IssueBookingWindow extends JFrame implements ActionListener {
     private static final long serialVersionUID = 1L;
     private final FlightBookingSystem fbs;
@@ -31,6 +35,11 @@ public class IssueBookingWindow extends JFrame implements ActionListener {
     private JButton issueBtn = new JButton("Issue");
     private JButton cancelBtn = new JButton("Cancel");
 
+    /**
+     * Constructs the booking-issuance window.
+     *
+     * @param fbs the flight booking system
+     */
     public IssueBookingWindow(FlightBookingSystem fbs) {
         this.fbs = fbs;
         setTitle("Issue Booking");
@@ -77,9 +86,11 @@ public class IssueBookingWindow extends JFrame implements ActionListener {
                     return;
                 }
 
+                // Execute the AddBooking command
                 AddBooking cmd = new AddBooking(custId, fltId, seatType, foodOpt);
                 cmd.execute(fbs);
 
+                // Attempt auto-save
                 try {
                     bcu.cmp5332.bookingsystem.data.FlightBookingSystemData.store(fbs);
                 } catch (IOException ex) {

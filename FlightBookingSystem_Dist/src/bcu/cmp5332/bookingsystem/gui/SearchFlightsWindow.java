@@ -12,6 +12,10 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * A window that allows users to search for flights based on optional
+ * origin, destination, and a date range.
+ */
 public class SearchFlightsWindow extends JFrame implements ActionListener {
     private static final long serialVersionUID = 1L;
     private final FlightBookingSystem fbs;
@@ -24,6 +28,11 @@ public class SearchFlightsWindow extends JFrame implements ActionListener {
     private JButton searchBtn = new JButton("Search");
     private JButton closeBtn = new JButton("Close");
 
+    /**
+     * Constructs the flight search window, which collects criteria and displays matches.
+     *
+     * @param fbs the flight booking system for searching flights
+     */
     public SearchFlightsWindow(FlightBookingSystem fbs) {
         this.fbs = fbs;
         setTitle("Search Flights");
@@ -59,6 +68,10 @@ public class SearchFlightsWindow extends JFrame implements ActionListener {
         }
     }
 
+    /**
+     * Gathers the criteria from user input, parses dates, and filters flights accordingly.
+     * Displays the results in a modal dialog.
+     */
     private void doSearch() {
         try {
             String origin = originField.getText().trim();
@@ -82,6 +95,11 @@ public class SearchFlightsWindow extends JFrame implements ActionListener {
         }
     }
 
+    /**
+     * Displays the search results in a separate dialog, listing each flight's details.
+     *
+     * @param flights the list of flights matching the user's criteria
+     */
     private void displayResults(List<Flight> flights) {
         JDialog dlg = new JDialog(this, "Search Results", true);
         dlg.setSize(600, 400);

@@ -8,11 +8,17 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
+/**
+ * A window that can display either all system bookings or all bookings for a single customer,
+ * depending on which constructor is called.
+ */
 public class ShowBookingsWindow extends JFrame {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Shows all bookings in the system.
+     * Shows all bookings in the system in a table view.
+     *
+     * @param fbs the flight booking system from which to retrieve bookings
      */
     public ShowBookingsWindow(FlightBookingSystem fbs) {
         setTitle("All Bookings");
@@ -43,7 +49,9 @@ public class ShowBookingsWindow extends JFrame {
     }
 
     /**
-     * Shows bookings for a single customer.
+     * Shows all bookings for a specific customer in a table view.
+     *
+     * @param customer the customer whose bookings will be displayed
      */
     public ShowBookingsWindow(Customer customer) {
         setTitle("Bookings for " + customer.getName());

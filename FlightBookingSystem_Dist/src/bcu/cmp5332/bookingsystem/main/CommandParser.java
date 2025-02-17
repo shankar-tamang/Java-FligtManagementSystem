@@ -2,14 +2,30 @@ package bcu.cmp5332.bookingsystem.main;
 
 import bcu.cmp5332.bookingsystem.commands.*;
 import bcu.cmp5332.bookingsystem.gui.MainWindow;
-import bcu.cmp5332.bookingsystem.model.SeatType; // If used anywhere
-import bcu.cmp5332.bookingsystem.model.FoodOption; // If used anywhere
+import bcu.cmp5332.bookingsystem.model.SeatType;  // If used anywhere
+import bcu.cmp5332.bookingsystem.model.FoodOption;  // If used anywhere
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
+/**
+ * The <code>CommandParser</code> class processes user input (in textual form) and
+ * returns the corresponding <code>Command</code> object for execution.
+ * <p>
+ * Each command is parsed based on tokens (split by whitespace).
+ * Unrecognized commands result in an {@link IllegalArgumentException}.
+ */
 public class CommandParser {
+
+    /**
+     * Parses a single line of input text, extracts parameters, and returns
+     * a corresponding <code>Command</code> object to be executed.
+     *
+     * @param input the user input string
+     * @return a <code>Command</code> representing the requested action
+     * @throws Exception if the parsing fails or parameters are invalid
+     */
     public static Command parse(String input) throws Exception {
         Scanner scanner = new Scanner(input);
         if (!scanner.hasNext()) {
@@ -19,6 +35,7 @@ public class CommandParser {
         String command = scanner.next().toLowerCase();
         switch (command) {
             case "addcustomer":
+                // e.g. usage: addcustomer John 12345 john@example.com
                 if (!scanner.hasNext())
                     throw new IllegalArgumentException("Usage: addcustomer [name] [phone] [email]");
                 String name = scanner.next();
@@ -30,7 +47,7 @@ public class CommandParser {
                 return new ListCustomers();
 
             /**
-             * Updated addflight to expect:
+             * Updated addflight usage:
              * addflight [flightNumber] [origin] [destination] [date] [econCap] [bizCap] [firstCap] [basePrice]
              */
             case "addflight":
@@ -99,7 +116,7 @@ public class CommandParser {
                 return new ShowCustomer(showCustId);
 
             /**
-             * Updated addbooking usage if needed. For now, just ignoring seat/food if not used in CLI.
+             * Updated addbooking usage if needed. For now, ignoring seat/food from CLI.
              */
             case "addbooking":
                 if (!scanner.hasNextInt())
@@ -109,7 +126,7 @@ public class CommandParser {
                     throw new IllegalArgumentException("Usage: addbooking [customer id] [flight id]");
                 int flightIdForBooking = scanner.nextInt();
 
-                // We pass null seatType, null foodOption if not specifying from CLI.
+                // Passing null seatType, null foodOption if not specifying from CLI
                 return new AddBooking(custIdForBooking, flightIdForBooking, null, null);
 
             case "cancelbooking":
@@ -178,6 +195,10 @@ public class CommandParser {
         }
     }
 
+    /**
+     * Prints the list of available commands and their usage to the console.
+     * Called when the user inputs "help".
+     */
     private static void printHelp() {
         System.out.println("Available commands:");
         System.out.println("listflights                               print all upcoming flights (only future flights are shown)");
@@ -194,7 +215,7 @@ public class CommandParser {
         System.out.println("listbookings                              list all bookings");
         System.out.println("   listbookings flight [flight id]        list bookings for a specific flight");
         System.out.println("   listbookings date [yyyy-mm-dd]         list bookings made on a specific date");
-        System.out.println("   listbookings customer [cust id]        list bookings for a specific customer");
+        System.out.println("   listbookings customer [customer id]    list bookings for a specific customer");
         System.out.println("loadgui                                   loads the GUI version of the app");
         System.out.println("help                                      prints this help message");
         System.out.println("exit                                      exits the program");

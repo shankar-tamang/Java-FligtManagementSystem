@@ -9,14 +9,15 @@ import bcu.cmp5332.bookingsystem.model.FlightBookingSystem;
 import java.io.IOException;
 
 /**
- * Marks a flight as deleted so it no longer appears in listings.
+ * A command that marks a Flight as deleted so it no longer appears in flight listings,
+ * implementing a soft-delete strategy.
  */
 public class DeleteFlight implements Command {
 
     private final int flightId;
 
     /**
-     * Creates a DeleteFlight command with the specified flightId.
+     * Creates a <code>DeleteFlight</code> command for the specified flight ID.
      *
      * @param flightId the ID of the flight to delete
      */
@@ -24,20 +25,27 @@ public class DeleteFlight implements Command {
         this.flightId = flightId;
     }
 
+    /**
+     * Soft-deletes the flight, attempts to store the updated system,
+     * and rolls back if the save fails.
+     *
+     * @param fbs the flight booking system to modify
+     * @throws FlightBookingSystemException if the flight is not found or storing fails
+     */
     @Override
     public void execute(FlightBookingSystem fbs) throws FlightBookingSystemException {
-        // 1) Take a snapshot in case storing fails
+        // 1) Snapshot for rollback
         Snapshot backup = FlightBookingSystemData.createSnapshot(fbs);
 
-        // 2) Mark the flight as deleted
+        // 2) Find flight and mark it as deleted
         Flight flight = fbs.getFlightById(flightId);
         flight.setDeleted(true);
 
-        // 3) Attempt to store
+        // 3) Try saving
         try {
             FlightBookingSystemData.store(fbs);
         } catch (IOException ex) {
-            // 4) Rollback on failure
+            // 4) Roll back if saving fails
             FlightBookingSystemData.restoreFromSnapshot(fbs, backup);
             throw new FlightBookingSystemException("Failed to store data. Deletion rolled back.\n" + ex.getMessage());
         }

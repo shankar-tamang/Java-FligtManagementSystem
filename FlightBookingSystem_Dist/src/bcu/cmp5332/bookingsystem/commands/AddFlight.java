@@ -9,10 +9,8 @@ import java.io.IOException;
 import java.time.LocalDate;
 
 /**
- * Creates (adds) a new Flight with separate seat capacities for Economy, Business, and First,
- * along with a base price. Assumes the Flight constructor has 10 parameters:
- *   (id, flightNumber, origin, destination, departureDate,
- *    econCap, bizCap, firstCap, basePrice, deleted).
+ * A command to create a new Flight with separate seat capacities (economy, business, first)
+ * plus a base price. The flight is initially marked as not deleted.
  */
 public class AddFlight implements Command {
 
@@ -20,22 +18,22 @@ public class AddFlight implements Command {
     private final String origin;
     private final String destination;
     private final LocalDate departureDate;
-    private final int econCap;      // economy capacity
-    private final int bizCap;       // business capacity
-    private final int firstCap;     // first class capacity
-    private final double basePrice; // base price for economy
+    private final int econCap;
+    private final int bizCap;
+    private final int firstCap;
+    private final double basePrice;
 
     /**
-     * Constructs an AddFlight command that will create a new flight with separate seat classes.
+     * Constructs an <code>AddFlight</code> command.
      *
-     * @param flightNumber the flight number (e.g. "BA123")
-     * @param origin the flight origin (e.g. "LHR")
-     * @param destination the flight destination (e.g. "JFK")
-     * @param departureDate the date of departure
-     * @param econCap the number of economy seats
-     * @param bizCap the number of business class seats
-     * @param firstCap the number of first class seats
-     * @param basePrice the base price (for economy seats)
+     * @param flightNumber  the flight number (e.g., "BA123")
+     * @param origin        the origin airport/code
+     * @param destination   the destination airport/code
+     * @param departureDate the date the flight departs
+     * @param econCap       economy seat capacity
+     * @param bizCap        business seat capacity
+     * @param firstCap      first class seat capacity
+     * @param basePrice     the base price for economy
      */
     public AddFlight(String flightNumber, String origin, String destination,
                      LocalDate departureDate, int econCap, int bizCap,
@@ -50,15 +48,20 @@ public class AddFlight implements Command {
         this.basePrice = basePrice;
     }
 
+    /**
+     * Executes the addition of a new flight, storing it in the system. If storing
+     * fails, the system is rolled back to a previous snapshot.
+     *
+     * @param fbs the flight booking system
+     * @throws FlightBookingSystemException if saving fails or other errors occur
+     */
     @Override
     public void execute(FlightBookingSystem fbs) throws FlightBookingSystemException {
-        // 1) Take a snapshot before making changes (for rollback if needed).
+        // 1) Take a snapshot
         Snapshot backup = FlightBookingSystemData.createSnapshot(fbs);
 
-        // 2) Create the new Flight in memory
+        // 2) Create a new flight with the next available ID
         int newId = fbs.getAllFlights().size() + 1;
-
-        // Matches the Flight(...) constructor that has 10 parameters.
         Flight flight = new Flight(
             newId,
             flightNumber,
@@ -69,16 +72,16 @@ public class AddFlight implements Command {
             bizCap,
             firstCap,
             basePrice,
-            false // not deleted
+            false
         );
 
         fbs.addFlight(flight);
 
-        // 3) Attempt to store the updated system
+        // 3) Attempt to store
         try {
             FlightBookingSystemData.store(fbs);
         } catch (IOException ex) {
-            // 4) Rollback if storing fails
+            // 4) Rollback on failure
             FlightBookingSystemData.restoreFromSnapshot(fbs, backup);
             throw new FlightBookingSystemException("Failed to store data. Changes rolled back.\n" + ex.getMessage());
         }

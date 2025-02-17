@@ -8,16 +8,23 @@ import java.awt.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * A window that displays all passengers (customers) assigned to a specific Flight.
+ */
 public class ListPassengersWindow extends JFrame {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Constructs a window listing passengers for the given flight.
+     *
+     * @param flight the flight whose passengers are to be listed
+     */
     public ListPassengersWindow(Flight flight) {
         setTitle("Passengers for Flight " + flight.getFlightNumber());
         setSize(400, 300);
 
         // If you're on Java 16+, you can do:
         // List<Customer> passengers = flight.getPassengers().stream().toList();
-        // Otherwise:
         List<Customer> passengers = flight.getPassengers().stream()
                 .collect(Collectors.toList());
 
