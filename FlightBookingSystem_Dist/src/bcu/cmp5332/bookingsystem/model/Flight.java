@@ -6,192 +6,165 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Represents a flight in the booking system.
+ * Represents a flight in the booking system, with seat capacities for multiple seat types.
  */
 public class Flight implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    /** The unique ID of this flight. */
+    private static int nextFlightId = 1;
+
     private final int id;
-
-    /** The flight number (e.g. BA123). */
     private final String flightNumber;
-
-    /** The origin airport/location. */
     private final String origin;
-
-    /** The destination airport/location. */
     private final String destination;
-
-    /** The LocalDate representing departure date. */
     private final LocalDate departureDate;
 
-    /** The maximum capacity (number of seats) for this flight. */
-    private final int capacity;
+    private int econCapacity;
+    private int businessCapacity;
+    private int firstCapacity;
 
-    /** The base price for this flight. */
-    private final double price;
+    private final double basePrice;
+    private boolean deleted = false;
 
-    /** Keeps track of which customers are on this flight. */
     private final Set<Customer> passengers = new HashSet<>();
 
     /**
-     * Whether this flight is marked as deleted.
-     * A deleted flight should not appear in system listings.
+     * Constructor for creating a new Flight, with seat capacities for economy, business, and first class.
      */
-    private boolean deleted = false;
+    public Flight(String flightNumber, String origin, String destination,
+                  LocalDate departureDate, int econCap, int bizCap, int firstCap,
+                  double basePrice) {
+        this.id = nextFlightId++;
+        this.flightNumber = flightNumber;
+        this.origin = origin;
+        this.destination = destination;
+        this.departureDate = departureDate;
+        this.econCapacity = econCap;
+        this.businessCapacity = bizCap;
+        this.firstCapacity = firstCap;
+        this.basePrice = basePrice;
+    }
 
     /**
-     * Constructs a new Flight with the given parameters.
-     *
-     * @param id the unique ID for this flight
-     * @param flightNumber the flight number (e.g. "BA123")
-     * @param origin the origin airport/location
-     * @param destination the destination airport/location
-     * @param departureDate the date this flight departs
-     * @param capacity the maximum number of seats on this flight
-     * @param price the base price per seat
+     * Constructor for loading from file with explicit ID
      */
     public Flight(int id, String flightNumber, String origin, String destination,
-                  LocalDate departureDate, int capacity, double price) {
+                  LocalDate departureDate, int econCap, int bizCap, int firstCap,
+                  double basePrice, boolean deleted) {
         this.id = id;
         this.flightNumber = flightNumber;
         this.origin = origin;
         this.destination = destination;
         this.departureDate = departureDate;
-        this.capacity = capacity;
-        this.price = price;
+        this.econCapacity = econCap;
+        this.businessCapacity = bizCap;
+        this.firstCapacity = firstCap;
+        this.basePrice = basePrice;
+        this.deleted = deleted;
+        if (id >= nextFlightId) {
+            nextFlightId = id + 1;
+        }
     }
 
-    /**
-     * Gets the unique ID of this flight.
-     *
-     * @return the flight ID
-     */
     public int getId() {
         return id;
     }
 
-    /**
-     * Gets the flight number.
-     *
-     * @return the flight number (e.g. "BA123")
-     */
     public String getFlightNumber() {
         return flightNumber;
     }
 
-    /**
-     * Gets the origin airport/location for this flight.
-     *
-     * @return the origin location
-     */
     public String getOrigin() {
         return origin;
     }
 
-    /**
-     * Gets the destination airport/location for this flight.
-     *
-     * @return the destination location
-     */
     public String getDestination() {
         return destination;
     }
 
-    /**
-     * Gets the scheduled departure date for this flight.
-     *
-     * @return the LocalDate representing the departure date
-     */
     public LocalDate getDepartureDate() {
         return departureDate;
     }
 
-    /**
-     * Gets the maximum capacity for this flight.
-     *
-     * @return the maximum number of seats
-     */
-    public int getCapacity() {
-        return capacity;
+    public double getBasePrice() {
+        return basePrice;
     }
 
-    /**
-     * Gets the base price for this flight.
-     *
-     * @return the price per seat
-     */
-    public double getPrice() {
-        return price;
+    public int getEconCapacity() {
+        return econCapacity;
     }
 
-    /**
-     * Returns the set of passengers (customers) on this flight.
-     *
-     * @return a Set of Customer objects
-     */
+    public int getBusinessCapacity() {
+        return businessCapacity;
+    }
+
+    public int getFirstCapacity() {
+        return firstCapacity;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
     public Set<Customer> getPassengers() {
         return passengers;
     }
 
     /**
-     * Checks if this flight is full (passengers >= capacity).
-     *
-     * @return true if the flight is at or over capacity, false otherwise
+     * Checks if the flight is full for a given seat type.
      */
-    public boolean isFull() {
-        return passengers.size() >= capacity;
+    public boolean isFull(SeatType seatType) {
+        switch (seatType) {
+            case ECONOMY:
+                return econCapacity <= 0;
+            case BUSINESS:
+                return businessCapacity <= 0;
+            case FIRST:
+                return firstCapacity <= 0;
+        }
+        return true;
     }
 
     /**
-     * Adds a passenger to this flight if not full.
-     *
-     * @param customer the Customer to add as a passenger
-     * @throws IllegalStateException if the flight is already full
+     * Adds a passenger to the flight in the specified seat type.
      */
-    public void addPassenger(Customer customer) {
-        if (isFull()) {
-            throw new IllegalStateException("Cannot add passenger. Flight is full.");
+    public void addPassenger(Customer customer, SeatType seatType) {
+        if (isFull(seatType)) {
+            throw new IllegalStateException("No seats available in " + seatType + " class.");
+        }
+        switch (seatType) {
+            case ECONOMY:
+                econCapacity--;
+                break;
+            case BUSINESS:
+                businessCapacity--;
+                break;
+            case FIRST:
+                firstCapacity--;
+                break;
         }
         passengers.add(customer);
     }
 
     /**
-     * Removes a passenger from this flight.
-     *
-     * @param customer the Customer to remove
+     * Removes a passenger from the flight (does NOT restore seat capacity).
      */
     public void removePassenger(Customer customer) {
         passengers.remove(customer);
     }
 
-    /**
-     * Gets a short details string about this flight.
-     *
-     * @return a String describing the flight succinctly
-     */
     public String getDetailsShort() {
-        return "Flight #" + id + ": " + flightNumber + " from " + origin + " to " + destination +
-               " departing on " + departureDate + " | Capacity: " + capacity + " | Price: " + price;
-    }
-
-    /**
-     * Whether this flight is marked as deleted.
-     *
-     * @return true if deleted, false otherwise
-     */
-    public boolean isDeleted() {
-        return deleted;
-    }
-
-    /**
-     * Sets this flight as deleted or undeleted.
-     * A deleted flight should no longer appear in standard lists.
-     *
-     * @param deleted the boolean flag to mark deletion
-     */
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
+        return "Flight #" + id + ": " + flightNumber +
+               " from " + origin + " to " + destination +
+               " on " + departureDate +
+               " | Econ: " + econCapacity +
+               " | Biz: " + businessCapacity +
+               " | First: " + firstCapacity +
+               " | BasePrice: $" + basePrice +
+               (deleted ? " [DELETED]" : "");
     }
 }

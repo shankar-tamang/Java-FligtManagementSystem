@@ -13,17 +13,25 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
+/**
+ * A window that collects data for adding a new Flight with separate seat capacities
+ * (economy, business, first) plus a base price.
+ */
 public class AddFlightWindow extends JFrame implements ActionListener {
 
     private static final long serialVersionUID = 1L;
-    private MainWindow mw;
+    private final MainWindow mw;
 
     private JTextField flightNoText = new JTextField();
     private JTextField originText = new JTextField();
     private JTextField destinationText = new JTextField();
     private JTextField depDateText = new JTextField();
-    private JTextField capacityText = new JTextField();
-    private JTextField priceText = new JTextField();
+
+    private JTextField econCapText = new JTextField();
+    private JTextField bizCapText = new JTextField();
+    private JTextField firstCapText = new JTextField();
+
+    private JTextField basePriceText = new JTextField();
 
     private JButton addBtn = new JButton("Add");
     private JButton cancelBtn = new JButton("Cancel");
@@ -35,10 +43,11 @@ public class AddFlightWindow extends JFrame implements ActionListener {
 
     private void initialize() {
         setTitle("Add a New Flight");
-        setSize(400, 300);
+        setSize(400, 400);
 
         JPanel topPanel = new JPanel();
-        topPanel.setLayout(new GridLayout(7, 2));
+        topPanel.setLayout(new GridLayout(9, 2));
+
         topPanel.add(new JLabel("Flight No: "));
         topPanel.add(flightNoText);
         topPanel.add(new JLabel("Origin: "));
@@ -47,10 +56,16 @@ public class AddFlightWindow extends JFrame implements ActionListener {
         topPanel.add(destinationText);
         topPanel.add(new JLabel("Departure Date (YYYY-MM-DD): "));
         topPanel.add(depDateText);
-        topPanel.add(new JLabel("Capacity: "));
-        topPanel.add(capacityText);
-        topPanel.add(new JLabel("Price: "));
-        topPanel.add(priceText);
+
+        topPanel.add(new JLabel("Economy Seats: "));
+        topPanel.add(econCapText);
+        topPanel.add(new JLabel("Business Seats: "));
+        topPanel.add(bizCapText);
+        topPanel.add(new JLabel("First Class Seats: "));
+        topPanel.add(firstCapText);
+
+        topPanel.add(new JLabel("Base Price: "));
+        topPanel.add(basePriceText);
 
         JPanel bottomPanel = new JPanel();
         bottomPanel.setLayout(new GridLayout(1, 3));
@@ -78,36 +93,53 @@ public class AddFlightWindow extends JFrame implements ActionListener {
 
     private void addFlight() {
         try {
-            String flightNumber = flightNoText.getText();
-            String origin = originText.getText();
-            String destination = destinationText.getText();
+            String flightNumber = flightNoText.getText().trim();
+            String origin = originText.getText().trim();
+            String destination = destinationText.getText().trim();
 
             LocalDate departureDate;
             try {
-                departureDate = LocalDate.parse(depDateText.getText());
+                departureDate = LocalDate.parse(depDateText.getText().trim());
             } catch (DateTimeParseException dtpe) {
                 throw new FlightBookingSystemException("Date must be in YYYY-MM-DD format");
             }
 
-            int capacity;
+            int econCap;
             try {
-                capacity = Integer.parseInt(capacityText.getText());
+                econCap = Integer.parseInt(econCapText.getText().trim());
             } catch (NumberFormatException nfe) {
-                throw new FlightBookingSystemException("Capacity must be an integer");
+                throw new FlightBookingSystemException("Economy capacity must be an integer");
             }
 
-            double price;
+            int bizCap;
             try {
-                price = Double.parseDouble(priceText.getText());
+                bizCap = Integer.parseInt(bizCapText.getText().trim());
             } catch (NumberFormatException nfe) {
-                throw new FlightBookingSystemException("Price must be a valid number");
+                throw new FlightBookingSystemException("Business capacity must be an integer");
             }
 
-            // Create and execute the AddFlight command with all required parameters
-            Command addFlightCmd = new AddFlight(flightNumber, origin, destination, departureDate, capacity, price);
+            int firstCap;
+            try {
+                firstCap = Integer.parseInt(firstCapText.getText().trim());
+            } catch (NumberFormatException nfe) {
+                throw new FlightBookingSystemException("First capacity must be an integer");
+            }
+
+            double basePrice;
+            try {
+                basePrice = Double.parseDouble(basePriceText.getText().trim());
+            } catch (NumberFormatException nfe) {
+                throw new FlightBookingSystemException("Base price must be a valid number");
+            }
+
+            // create and execute the AddFlight command with all 8 parameters
+            Command addFlightCmd = new AddFlight(
+                flightNumber, origin, destination, departureDate,
+                econCap, bizCap, firstCap, basePrice
+            );
             addFlightCmd.execute(mw.getFlightBookingSystem());
 
-            // Attempt auto-save
+            // attempt auto-save
             try {
                 FlightBookingSystemData.store(mw.getFlightBookingSystem());
             } catch (IOException ioe) {

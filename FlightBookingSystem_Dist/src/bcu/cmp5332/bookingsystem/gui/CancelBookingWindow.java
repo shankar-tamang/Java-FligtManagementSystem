@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class CancelBookingWindow extends JFrame implements ActionListener {
     private static final long serialVersionUID = 1L;
-    private FlightBookingSystem fbs;
+    private final FlightBookingSystem fbs;
 
     private JTextField customerIdField = new JTextField();
     private JTextField flightIdField = new JTextField();
@@ -42,10 +42,18 @@ public class CancelBookingWindow extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == cancelBtn) {
+            int confirm = JOptionPane.showConfirmDialog(this,
+                "Are you sure you want to cancel this booking?",
+                "Confirm Cancel",
+                JOptionPane.YES_NO_OPTION);
+            if (confirm != JOptionPane.YES_OPTION) {
+                return; // user chose NO
+            }
+
             try {
                 int custId = Integer.parseInt(customerIdField.getText());
                 int fltId = Integer.parseInt(flightIdField.getText());
-                
+
                 CancelBooking cmd = new CancelBooking(custId, fltId);
                 cmd.execute(fbs);
 

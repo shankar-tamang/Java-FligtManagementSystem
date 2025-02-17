@@ -1,105 +1,114 @@
 package bcu.cmp5332.bookingsystem.gui;
 
+import bcu.cmp5332.bookingsystem.commands.*;
 import bcu.cmp5332.bookingsystem.data.FlightBookingSystemData;
+import bcu.cmp5332.bookingsystem.main.FlightBookingSystemException;
 import bcu.cmp5332.bookingsystem.model.Flight;
 import bcu.cmp5332.bookingsystem.model.FlightBookingSystem;
 import bcu.cmp5332.bookingsystem.model.Customer;
 
-import bcu.cmp5332.bookingsystem.commands.*;
-import bcu.cmp5332.bookingsystem.main.FlightBookingSystemException;
-
-import java.awt.BorderLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.List;
-import javax.swing.*;
 
 /**
  * The main GUI window for the Flight Booking Management System.
+ * Includes menu items for flights, bookings, customers, admin actions, and new features:
+ * - Search Flights
+ * - Admin Reports
  */
 public class MainWindow extends JFrame implements ActionListener {
-
     private static final long serialVersionUID = 1L;
 
     private JMenuBar menuBar;
-
     private JMenu adminMenu, flightsMenu, bookingsMenu, customersMenu;
+
+    // Admin
     private JMenuItem adminExit;
-    private JMenuItem flightsView, flightsAdd, flightsDel, flightsRemove; // flightsRemove = "Delete Flight" 
-    private JMenuItem bookingsIssue, bookingsUpdate, bookingsCancel;
+    private JMenuItem adminReports;
+
+    // Flights
+    private JMenuItem flightsView, flightsAdd, flightsDel, flightsRemove, flightsSearch;
+
+    // Bookings
+    private JMenuItem bookingsIssue, bookingsUpdate, bookingsCancel, bookingsViewAll;
+
+    // Customers
     private JMenuItem custView, custAdd, custDel, custListAll;
 
-    private FlightBookingSystem fbs;
+    private final FlightBookingSystem fbs;
 
-    /**
-     * Constructs the main window for the flight booking system GUI.
-     *
-     * @param fbs the FlightBookingSystem instance
-     */
     public MainWindow(FlightBookingSystem fbs) {
         this.fbs = fbs;
         initialize();
     }
 
-    /**
-     * Gets the FlightBookingSystem instance used by this window.
-     *
-     * @return the FlightBookingSystem
-     */
     public FlightBookingSystem getFlightBookingSystem() {
         return fbs;
     }
 
-    /**
-     * Initializes the GUI components and menu layout.
-     */
     private void initialize() {
         setTitle("Flight Booking Management System");
         menuBar = new JMenuBar();
         setJMenuBar(menuBar);
 
-        // Admin Menu
+        // =========== Admin Menu ===========
         adminMenu = new JMenu("Admin");
         menuBar.add(adminMenu);
+
+        adminReports = new JMenuItem("Generate Reports");
+        adminMenu.add(adminReports);
+        adminReports.addActionListener(this);
+
         adminExit = new JMenuItem("Exit");
         adminMenu.add(adminExit);
         adminExit.addActionListener(this);
 
-        // Flights Menu
+        // =========== Flights Menu ===========
         flightsMenu = new JMenu("Flights");
         menuBar.add(flightsMenu);
 
         flightsView = new JMenuItem("View All");
         flightsAdd = new JMenuItem("Add Flight");
         flightsDel = new JMenuItem("View Passengers");
-        flightsRemove = new JMenuItem("Delete Flight"); // new
+        flightsRemove = new JMenuItem("Delete Flight");
+        flightsSearch = new JMenuItem("Search Flights"); // new
 
         flightsMenu.add(flightsView);
         flightsMenu.add(flightsAdd);
         flightsMenu.add(flightsDel);
         flightsMenu.add(flightsRemove);
+        flightsMenu.add(flightsSearch);
 
-        for (int i = 0; i < flightsMenu.getItemCount(); i++) {
-            flightsMenu.getItem(i).addActionListener(this);
-        }
+        flightsView.addActionListener(this);
+        flightsAdd.addActionListener(this);
+        flightsDel.addActionListener(this);
+        flightsRemove.addActionListener(this);
+        flightsSearch.addActionListener(this);
 
-        // Bookings Menu
+        // =========== Bookings Menu ===========
         bookingsMenu = new JMenu("Bookings");
         menuBar.add(bookingsMenu);
 
         bookingsIssue = new JMenuItem("Issue");
         bookingsUpdate = new JMenuItem("Update");
         bookingsCancel = new JMenuItem("Cancel");
+        bookingsViewAll = new JMenuItem("View All Bookings");
+
         bookingsMenu.add(bookingsIssue);
         bookingsMenu.add(bookingsUpdate);
         bookingsMenu.add(bookingsCancel);
+        bookingsMenu.add(bookingsViewAll);
 
-        for (int i = 0; i < bookingsMenu.getItemCount(); i++) {
-            bookingsMenu.getItem(i).addActionListener(this);
-        }
+        bookingsIssue.addActionListener(this);
+        bookingsUpdate.addActionListener(this);
+        bookingsCancel.addActionListener(this);
+        bookingsViewAll.addActionListener(this);
 
-        // Customers Menu
+        // =========== Customers Menu ===========
         customersMenu = new JMenu("Customers");
         menuBar.add(customersMenu);
 
@@ -123,14 +132,9 @@ public class MainWindow extends JFrame implements ActionListener {
         setVisible(true);
     }
 
-    /**
-     * Handles menu actions triggered by the user.
-     *
-     * @param ae the ActionEvent representing the user's click
-     */
     @Override
     public void actionPerformed(ActionEvent ae) {
-        // Admin Exit
+        // Admin
         if (ae.getSource() == adminExit) {
             try {
                 FlightBookingSystemData.store(fbs);
@@ -138,6 +142,9 @@ public class MainWindow extends JFrame implements ActionListener {
                 JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
             System.exit(0);
+
+        } else if (ae.getSource() == adminReports) {
+            new AdminReportsWindow(fbs);
 
         // Flights
         } else if (ae.getSource() == flightsView) {
@@ -147,10 +154,8 @@ public class MainWindow extends JFrame implements ActionListener {
             new AddFlightWindow(this);
 
         } else if (ae.getSource() == flightsDel) {
-            // "View Passengers" for flight
             String input = JOptionPane.showInputDialog("Enter Flight ID to view passengers:");
             if (input == null) return;
-
             try {
                 int flightId = Integer.parseInt(input);
                 Flight flight = fbs.getFlightById(flightId);
@@ -160,14 +165,11 @@ public class MainWindow extends JFrame implements ActionListener {
             }
 
         } else if (ae.getSource() == flightsRemove) {
-            // "Delete Flight"
             String input = JOptionPane.showInputDialog("Enter Flight ID to delete:");
             if (input == null) return;
-
             try {
                 int flightId = Integer.parseInt(input);
-                Command cmd = new DeleteFlight(flightId);
-                cmd.execute(fbs);
+                new DeleteFlight(flightId).execute(fbs);
                 JOptionPane.showMessageDialog(this, "Flight #" + flightId + " deleted (hidden).");
             } catch (FlightBookingSystemException fex) {
                 JOptionPane.showMessageDialog(this, "Error: " + fex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -175,25 +177,29 @@ public class MainWindow extends JFrame implements ActionListener {
                 JOptionPane.showMessageDialog(this, "Invalid Flight ID!", "Error", JOptionPane.ERROR_MESSAGE);
             }
 
+        } else if (ae.getSource() == flightsSearch) {
+            new SearchFlightsWindow(fbs);
+
         // Bookings
         } else if (ae.getSource() == bookingsIssue) {
-            JOptionPane.showMessageDialog(this, "Not implemented yet.", "Info", JOptionPane.INFORMATION_MESSAGE);
+            new IssueBookingWindow(fbs);
 
         } else if (ae.getSource() == bookingsUpdate) {
-            JOptionPane.showMessageDialog(this, "Not implemented yet.", "Info", JOptionPane.INFORMATION_MESSAGE);
+            new UpdateBookingWindow(fbs);
 
         } else if (ae.getSource() == bookingsCancel) {
-            JOptionPane.showMessageDialog(this, "Not implemented yet.", "Info", JOptionPane.INFORMATION_MESSAGE);
+            new CancelBookingWindow(fbs);
+
+        } else if (ae.getSource() == bookingsViewAll) {
+            new ShowBookingsWindow(fbs);
 
         // Customers
         } else if (ae.getSource() == custView) {
             String input = JOptionPane.showInputDialog("Enter Customer ID to view bookings:");
             if (input == null) return;
-
             try {
                 int customerId = Integer.parseInt(input);
-                Customer customer = fbs.getCustomerById(customerId);
-                new ShowBookingsWindow(customer);
+                new ShowBookingsWindow(fbs.getCustomerById(customerId));
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, "Invalid Customer ID!", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -202,14 +208,11 @@ public class MainWindow extends JFrame implements ActionListener {
             new AddCustomerWindow(fbs);
 
         } else if (ae.getSource() == custDel) {
-            // "Delete Customer"
             String input = JOptionPane.showInputDialog("Enter Customer ID to delete:");
             if (input == null) return;
-
             try {
                 int customerId = Integer.parseInt(input);
-                Command cmd = new DeleteCustomer(customerId);
-                cmd.execute(fbs);
+                new DeleteCustomer(customerId).execute(fbs);
                 JOptionPane.showMessageDialog(this, "Customer #" + customerId + " deleted (hidden).");
             } catch (FlightBookingSystemException fex) {
                 JOptionPane.showMessageDialog(this, "Error: " + fex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -218,7 +221,6 @@ public class MainWindow extends JFrame implements ActionListener {
             }
 
         } else if (ae.getSource() == custListAll) {
-            // Show all customers
             new ListAllCustomersWindow(fbs);
         }
     }
@@ -228,8 +230,11 @@ public class MainWindow extends JFrame implements ActionListener {
      */
     public void displayFlights() {
         List<Flight> flightsList = fbs.getFlights();
-        String[] columns = {"ID", "Flight No", "Origin", "Destination", "Departure Date", "Capacity", "Price"};
-        Object[][] data = new Object[flightsList.size()][7];
+
+        // For seat classes, we might just show the sum or show them individually
+        String[] columns = {"ID", "Flight No", "Origin", "Destination",
+            "Departure", "Econ", "Biz", "First", "BasePrice"};
+        Object[][] data = new Object[flightsList.size()][9];
 
         for (int i = 0; i < flightsList.size(); i++) {
             Flight flight = flightsList.get(i);
@@ -238,12 +243,15 @@ public class MainWindow extends JFrame implements ActionListener {
             data[i][2] = flight.getOrigin();
             data[i][3] = flight.getDestination();
             data[i][4] = flight.getDepartureDate();
-            data[i][5] = flight.getCapacity();
-            data[i][6] = flight.getPrice();
+            data[i][5] = flight.getEconCapacity();
+            data[i][6] = flight.getBusinessCapacity();
+            data[i][7] = flight.getFirstCapacity();
+            data[i][8] = flight.getBasePrice();
         }
 
         JTable table = new JTable(data, columns);
         JScrollPane scrollPane = new JScrollPane(table);
+
         getContentPane().removeAll();
         getContentPane().add(scrollPane, BorderLayout.CENTER);
         revalidate();

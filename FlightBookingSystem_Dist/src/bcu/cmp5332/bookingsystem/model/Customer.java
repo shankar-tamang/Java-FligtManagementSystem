@@ -6,96 +6,85 @@ import java.util.List;
 
 /**
  * Represents a customer in the booking system.
+ * Uses an auto-incrementing static counter for unique customer IDs.
  */
 public class Customer implements Serializable {
     private static final long serialVersionUID = 1L;
-
-    /** The unique ID for this customer. */
+    
+    // Static counter for generating unique customer IDs.
+    private static int nextCustomerId = 1;
+    
+    // Unique customer ID.
     private final int id;
-
-    /** The name of this customer. */
     private final String name;
-
-    /** The phone number of this customer. */
     private final String phone;
-
-    /** The email address of this customer. */
     private final String email;
-
-    /** The list of bookings that this customer has. */
     private final List<Booking> bookings = new ArrayList<>();
-
-    /**
-     * Whether this customer is marked as deleted.
-     * A deleted customer should not appear in system listings.
-     */
+    
+    // Soft deletion flag.
     private boolean deleted = false;
-
+    
     /**
-     * Constructs a new Customer with the given information.
+     * Constructor for creating a new Customer.
+     * Automatically assigns a unique ID.
      *
-     * @param id the unique ID for this customer
      * @param name the customer's name
      * @param phone the customer's phone number
      * @param email the customer's email address
      */
-    public Customer(int id, String name, String phone, String email) {
-        this.id = id;
+    public Customer(String name, String phone, String email) {
+        this.id = nextCustomerId++;
         this.name = name;
         this.phone = phone;
         this.email = email;
     }
-
+    
     /**
-     * Gets the ID of this customer.
+     * Constructor for loading a Customer from storage.
+     * Updates the static counter if necessary.
      *
-     * @return the customer's ID
+     * @param id the customer ID loaded from file
+     * @param name the customer's name
+     * @param phone the customer's phone number
+     * @param email the customer's email address
+     * @param deleted the deletion status
      */
+    public Customer(int id, String name, String phone, String email, boolean deleted) {
+        this.id = id;
+        this.name = name;
+        this.phone = phone;
+        this.email = email;
+        this.deleted = deleted;
+        if (id >= nextCustomerId) {
+            nextCustomerId = id + 1;
+        }
+    }
+    
     public int getId() {
         return id;
     }
-
-    /**
-     * Gets the customer's name.
-     *
-     * @return the customer's name
-     */
+    
     public String getName() {
         return name;
     }
-
-    /**
-     * Gets the customer's phone number.
-     *
-     * @return the phone number
-     */
+    
     public String getPhone() {
         return phone;
     }
-
-    /**
-     * Gets the customer's email address.
-     *
-     * @return the email address
-     */
+    
     public String getEmail() {
         return email;
     }
-
-    /**
-     * Gets the list of bookings this customer has.
-     *
-     * @return the list of Booking objects
-     */
+    
     public List<Booking> getBookings() {
         return bookings;
     }
-
+    
     /**
-     * Adds a booking for this customer.
+     * Adds a booking to this customer.
      *
-     * @param booking the Booking to add
-     * @throws IllegalArgumentException if the booking already exists
+     * @param booking the booking to add.
+     * @throws IllegalArgumentException if the booking already exists.
      */
     public void addBooking(Booking booking) {
         if (bookings.contains(booking)) {
@@ -103,30 +92,20 @@ public class Customer implements Serializable {
         }
         bookings.add(booking);
     }
-
+    
     /**
-     * Cancels (removes) a booking for a particular flight.
+     * Cancels (removes) a booking for the given flight.
      *
-     * @param flight the Flight to cancel
+     * @param flight the flight to cancel booking for.
      */
     public void cancelBookingForFlight(Flight flight) {
         bookings.removeIf(booking -> booking.getFlight().equals(flight));
     }
-
-    /**
-     * Gets a short detail string about this customer.
-     *
-     * @return a String describing the customer succinctly
-     */
+    
     public String getDetailsShort() {
         return "Customer #" + id + ": " + name + " - " + phone + " - " + email;
     }
-
-    /**
-     * Gets a longer detail string about this customer, including bookings.
-     *
-     * @return a String describing the customer's details and bookings
-     */
+    
     public String getDetailsLong() {
         StringBuilder sb = new StringBuilder();
         sb.append(getDetailsShort()).append("\nBookings:\n");
@@ -135,20 +114,15 @@ public class Customer implements Serializable {
         }
         return sb.toString();
     }
-
-    /**
-     * Whether this customer is marked as deleted.
-     *
-     * @return true if deleted, false otherwise
-     */
+    
     public boolean isDeleted() {
         return deleted;
     }
-
+    
     /**
-     * Marks or unmarks this customer as deleted.
+     * Marks or unmarks the customer as deleted.
      *
-     * @param deleted the boolean flag for deletion
+     * @param deleted true to mark as deleted.
      */
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;

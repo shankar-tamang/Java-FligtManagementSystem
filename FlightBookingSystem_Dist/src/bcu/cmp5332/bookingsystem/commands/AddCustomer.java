@@ -25,8 +25,8 @@ public class AddCustomer implements Command {
         Snapshot backup = FlightBookingSystemData.createSnapshot(fbs);
 
         // 2) Modify the system in memory
-        int newId = fbs.getCustomers().size() + 1;
-        Customer customer = new Customer(newId, name, phone, email);
+        int newId = fbs.getAllCustomers().size() + 1;
+        Customer customer = new Customer(newId, name, phone, email, false);
         fbs.addCustomer(customer);
 
         // 3) Attempt to store
